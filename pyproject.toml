@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "bot-template"
-version = "0.1.2"
+name = "pretty-please-bot"
+version = "0.0.1"
 description = ""
 authors = ["Petr Lavrov <calmmage@gmail.com>"]
 readme = "README.md"

@@ -1,4 +1,4 @@
-from bot_template.core.app import TemplateApp
+from pretty_please_bot.core.app import PrettyPleaseApp
 
 import pytest
 
@@ -14,4 +14,4 @@ def setup_environment(monkeypatch):
 
 
 def test_app(setup_environment):
-    app = TemplateApp()
+    app = PrettyPleaseApp()

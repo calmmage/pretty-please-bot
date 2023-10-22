@@ -1,7 +1,7 @@
 import pytest
 
-from bot_template.core.app_config import TemplateTelegramBotConfig
-from bot_template.core import TemplateTelegramBot
+from pretty_please_bot.core.app_config import PrettyPleaseTelegramBotConfig
+from pretty_please_bot.core import PrettyPleaseTelegramBot
 
 
 @pytest.fixture(scope="function")
@@ -12,5 +12,5 @@ def setup_environment(monkeypatch):
 
 
 def test_bot(setup_environment):
-    config = TemplateTelegramBotConfig()
-    bot = TemplateTelegramBot(config)
+    config = PrettyPleaseTelegramBotConfig()
+    bot = PrettyPleaseTelegramBot(config)
