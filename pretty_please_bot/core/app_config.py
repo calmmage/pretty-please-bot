@@ -10,5 +10,5 @@ class PrettyPleaseTelegramBotConfig(TelegramBotConfig):
 
 
 class PrettyPleaseAppConfig(AppConfig):
-    _database_config_class = PrettyPleaseDatabaseConfig
-    _telegram_bot_config_class = PrettyPleaseTelegramBotConfig
+    database: PrettyPleaseDatabaseConfig = PrettyPleaseDatabaseConfig()
+    telegram_bot: PrettyPleaseTelegramBotConfig = PrettyPleaseTelegramBotConfig()
