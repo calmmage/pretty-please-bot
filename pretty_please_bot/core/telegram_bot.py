@@ -58,17 +58,26 @@ class PrettyPleaseTelegramBot(TelegramBot):
         message_text = await self._extract_message_text(message)
         destination_chat_id = self.config.destination_chat_id
 
+        if message_text.startswith("/"):
+            message_text = message_text.strip()
+            # check if there's more text after the command
+            if " " in message_text:
+                message_text = message_text.split(" ", 1)[1].strip()
+            else:
+                reply_text = ("Please specify your request after the command. "
+                              "\nYou can use /pp for short.")
+                await message.answer(reply_text)
+
         allowed = self.tokens[message.from_user.username] > 0
         time_since_refresh = datetime.datetime.now() - self._last_refresh_time
         refresh_period = datetime.timedelta(days=self.config.refresh_period)
         time_until_refresh = refresh_period - time_since_refresh
         if allowed:
-            self.tokens[message.from_user.username] -= 1
             # send it to the chat
-            if message_text.startswith("/"):
-                message_text = message_text.split(" ", 1)[1].strip()
             request_text = f"@{message.from_user.username} asks: \n{message_text}"
             await self.send_safe(destination_chat_id, request_text)
+
+            self.tokens[message.from_user.username] -= 1
             reply_text = self.REPLY_TEXT_TEMPLATE.format(
                 tokens_left=self.tokens[message.from_user.username],
                 tokens_refresh_time=time_until_refresh,

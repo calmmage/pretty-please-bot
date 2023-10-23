@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pretty-please-bot"
-version = "0.1.0"  # First release!
+version = "0.1.1"  # Fix missing request text error
 # Template Version: 0.2.1
 # update for new bot-base version
 description = ""
