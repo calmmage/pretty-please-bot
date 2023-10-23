@@ -67,6 +67,7 @@ class PrettyPleaseTelegramBot(TelegramBot):
                 reply_text = ("Please specify your request after the command. "
                               "\nYou can use /pp for short.")
                 await message.answer(reply_text)
+                return
 
         allowed = self.tokens[message.from_user.username] > 0
         time_since_refresh = datetime.datetime.now() - self._last_refresh_time
