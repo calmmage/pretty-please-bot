@@ -95,12 +95,12 @@ class PrettyPleaseTelegramBot(TelegramBot):
         )
 
     @mark_command(commands=["refresh"], description="Refresh token quota")
-    async def refresh(self, message: types.Message):
+    async def refresh(self, message: types.Message, force=False):
         # todo: check if last refresh was less than 6 days ago
         time_since_refresh = datetime.datetime.now() - self._last_refresh_time
         refresh_period = datetime.timedelta(days=self.config.refresh_period)
         time_until_refresh = refresh_period - time_since_refresh
-        if time_until_refresh < datetime.timedelta(days=0):
+        if force or (time_until_refresh < datetime.timedelta(days=0)):
             # allow
             self._last_refresh_time = datetime.datetime.now()
             for user in self.config.allowed_users:
@@ -112,6 +112,13 @@ class PrettyPleaseTelegramBot(TelegramBot):
                 f"Refresh blocked! Next refresh available in:" f" {time_until_refresh}"
             )
             await message.answer(reply_text)
+
+    @mark_command("forceRefresh", description="Force refresh token quota")
+    async def force_refresh(self, message: types.Message):
+        username = message.from_user.username
+        announcement_text = f"@{username} force refreshed the token quota! Cheater!"
+        await self.send_safe(self.config.destination_chat_id, announcement_text)
+        await self.refresh(message, force=True)
 
     async def bootstrap(self):
         await super().bootstrap()
