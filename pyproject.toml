@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pretty-please-bot"
-version = "0.2.0"  # Persistent database / disk storage
+version = "0.3.0"  # Add schedule
 # Template Version: 0.2.1
 # update for new bot-base version
 description = ""
@@ -20,6 +20,7 @@ pytest-mongodb = "^2.4.0"
 jupyter = "^1.0.0"
 pandas = "^2.1.0"
 black = "*"
+apscheduler = "*"
 
 [build-system]
 requires = ["poetry-core"]

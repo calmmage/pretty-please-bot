@@ -1,6 +1,8 @@
 import datetime
 import json
 
+# from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 from mongoengine import Document, DateTimeField, StringField, BooleanField
 
 from bot_base.core import App
@@ -39,6 +41,7 @@ class PrettyPleaseApp(App):
     _telegram_bot_class = PrettyPleaseTelegramBot
     _database_config_class = PrettyPleaseDatabaseConfig
     _telegram_bot_config_class = PrettyPleaseTelegramBotConfig
+    bot: PrettyPleaseTelegramBot
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -65,6 +68,8 @@ class PrettyPleaseApp(App):
         if self.tokens_path.exists():
             with open(self.tokens_path, "r") as f:
                 self.tokens.update(json.load(f))
+
+        self._schedule_jobs()
 
     # def register_event(self, event):
     def register_event(self, event_content: str, allowed: bool, user: str):
@@ -125,3 +130,53 @@ class PrettyPleaseApp(App):
     # 2) register user (add user to group)
     # 3) create a new group
     # 4) list groups for user
+
+    # --------------------------------
+    # Schedule tasks
+    # --------------------------------
+    @staticmethod
+    def _get_next_day_of_week(day_of_week):
+        today = datetime.datetime.now()
+        days_ahead = day_of_week - today.weekday()
+        if days_ahead <= 0:  # Target day already happened this week
+            days_ahead += 7
+        return today + datetime.timedelta(days=days_ahead, hours=23 - today.hour)
+
+    def _schedule_jobs(self):
+        # every Monday at 23:59
+        next_monday = self._get_next_day_of_week(0)
+        refresh_trigger = IntervalTrigger(weeks=1, start_date=next_monday)
+        self._scheduler.add_job(
+            self._task_1_refresh_tokens,
+            trigger=refresh_trigger,
+            id="refresh_tokens",
+            name="Refresh tokens",
+        )
+
+        # every Sunday at 23:59
+        next_sunday = self._get_next_day_of_week(6)
+        notify_trigger = IntervalTrigger(weeks=1, start_date=next_sunday)
+        self._scheduler.add_job(
+            self._task_2_notify_users,
+            trigger=notify_trigger,
+            id="notify_users",
+            name="Notify users",
+        )
+
+    async def _task_1_refresh_tokens(self):
+        """
+        Refresh tokens and notify users
+        :return:
+        """
+        await self.refresh_tokens()
+        message = "Tokens refreshed. Make your wishes!"
+        await self.bot.send_safe(message, self.bot.config.destination_chat_id)
+
+    async def _task_2_notify_users(self):
+        """
+        Notify users about upcoming token refresh
+        :return:
+        """
+        self.logger.info("Notifying users")
+        message = "Tokens will be refreshed in 1 day"
+        await self.bot.send_safe(message, self.bot.config.destination_chat_id)
